@@ -1,0 +1,71 @@
+package main;
+
+import javax.swing.JPanel;
+import java.awt.*;
+
+
+public class GamePanel extends JPanel implements Runnable{
+
+    public static final int WIDTH = 1100;
+    public static final int HEIGHT = 800;
+    final int FPS = 60;
+    Thread gameThread;
+    Board board;
+    PiecesHandler piecesHandler;
+    Mouse mouse;
+
+    //COLORS
+    public static final int WHITE = 0;
+    public static final int BLACK = 1;
+
+    public GamePanel(){
+        setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        setBackground(Color.BLACK);
+        board = new Board();
+        piecesHandler = new PiecesHandler(WHITE);
+        piecesHandler.initPieces();
+        mouse = new Mouse(piecesHandler);
+        addMouseListener(mouse);
+        addMouseMotionListener(mouse);
+    }
+
+    public void launchGame(){
+    gameThread = new Thread(this);
+    gameThread.start();
+    }
+
+    @Override
+    public void run(){
+        //Game Loop
+        double drawInterval = 1000000000/FPS;
+        double delta = 0;
+        long lastTime= System.nanoTime();
+        long currentTime;
+
+        while (gameThread != null) {
+            currentTime = System.nanoTime();
+
+            delta += (currentTime - lastTime)/drawInterval;
+            lastTime = currentTime;
+
+            if( delta >= 1){
+                update();
+                repaint();
+                delta--;
+            }
+        }
+    }
+
+    public void paintComponent(Graphics g){
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g;
+
+        board.draw(g2);
+        piecesHandler.draw(g2);
+    }
+
+    private void update(){
+
+    }
+
+}
